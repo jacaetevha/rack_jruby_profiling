@@ -5,7 +5,7 @@ module TestHelpers
     Proc.new { |env| 
       500.times {|t| "construct a string for #{t} just so that we have some work to do in this application"}
       500.times {|t| [t, t/4.0].max }
-      [@code, {"Content-Type" => "text/plain", "Content-Length" => "3"}, [@code.to_s]] 
+      [code, {"Content-Type" => "text/plain", "Content-Length" => "3"}, [code.to_s]] 
     }
   end
   
@@ -37,9 +37,15 @@ describe Rack::JRubyProfiler do
   end
   
   after :each do
-    if @profiler
+    if @profiler && @profiler.profile_file
       File.delete @profiler.profile_file
     end
+  end
+  
+  it "shouldn't profile is the no_profile query parameter is set" do
+    @request = Rack::MockRequest.env_for("/profile_test?no_profile=true")
+    response = response_for( basic_application(200), @request )
+    response.should == basic_application(200).call(nil)
   end
   
   [200, 301, 404, 500].each do | code |
@@ -56,8 +62,8 @@ describe Rack::JRubyProfiler do
   end
   
   it "should NOT mask when a down-stream app throws an error" do
-    @request = Rack::MockRequest.env_for("/profile_test")
-    lambda{ response_for( error_application('ka-boom!'), request ) }.should raise_error
+    request = Rack::MockRequest.env_for("/profile_test")
+    lambda{ response_for( error_application('ka-boom!'), request ) }.should raise_error('ka-boom!')
   end
 
   class Tuple

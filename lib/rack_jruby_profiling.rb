@@ -5,7 +5,11 @@ module Rack
   #
   # Set the profile=call_tree query parameter to view a calltree profile of the request.
   #
-  # Set the download query parameter to download the result locally
+  # Set the download query parameter to download the result locally.
+  #
+  # Set the no_profile query parameter to selectively turn off profiling on certain requests.
+  #
+  # Both the no_profile and download parameters take a tru-ish value, one of [y, yes, t, true]
   #
   class JRubyProfiler
     DEFAULT_CONTENT_TYPE = 'text/html'
@@ -54,16 +58,20 @@ module Rack
       def profile(env)
         request  = Rack::Request.new(env)
         @printer = parse_printer(request.params.delete('profile'))
-        if JRubyProf.running?
+        if JRubyProf.running? || boolean(request['no_profile'])
           @app.call(env)
         else
-          count  = (request.params.delete('times') || @times).to_i
-          result = JRubyProf.profile do
-            count.times { @app.call(env) }
+          begin
+            count  = (request.params.delete('times') || @times).to_i
+            result = JRubyProf.profile do
+              count.times { @app.call(env) }
+            end
+            @uniq_id = Java::java.lang.System.nano_time
+            @profile_file = ::File.expand_path( filename(@printer, env) )
+            [200, headers(@printer, request, env), print(@printer, request, env, result)]
+          ensure
+            JRubyProf.stop
           end
-          @uniq_id = Java::java.lang.System.nano_time
-          @profile_file = ::File.expand_path( filename(@printer, env) )
-          [200, headers(@printer, request, env), print(@printer, request, env, result)]
         end
       end
       

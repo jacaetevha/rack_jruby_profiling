@@ -1,6 +1,26 @@
 = rack_jruby_profiling
 
-Description goes here.
+To use this in your application you need to have JRubyProf (http://github.com/danlucraft/jruby-prof) installed and available, and your application should be running on the JVM (of course).
+
+This is used like any other Rack middleware:
+
+  require 'rack_jruby_profiling'
+  use Rack::JRubyProfiler
+  
+You can selectively turn off profiling on any request by adding "no_profile=<t,true,y,yes>" to the query parameter list.
+
+The results of the profiling are streamed directly to your client. If you would like to download the file that is generated instead, add a "download=<t,true,y,yes>" parameter to your request.
+
+JRubyProf supports 5 different profile outputs. You can add "profile=<flat,graph,call_tree,graph_html,tree_html>" to specify which you want to use. The default is "tree_html". See http://danlucraft.com/blog/2010/03/jruby-prof/ for more information on these outputs.
+
+* flat => plain text 
+* graph => plain text
+* call_tree => plain text
+* graph_html => HTML
+* tree_html => HTML
+
+== Caveat
+JRubyProf generates files for the profiling information. These files are generated in the current working directory. This middleware doesn't attempt to delete those files after they are generated. That's an exercise left to the user.
 
 == Note on Patches/Pull Requests
  

@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{rack_jruby_profiling}
-  s.version = "0.1.0"
+  s.version = "1.0.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jason Rogers"]
-  s.date = %q{2010-04-13}
+  s.date = %q{2010-04-15}
   s.description = %q{Rack middleware for running profiling JRuby applications}
   s.email = %q{jacaetevha@gmail.com}
   s.extra_rdoc_files = [
@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
      "README.rdoc",
      "VERSION",
      "lib/rack_jruby_profiling.rb",
+     "rack_jruby_profiling.gemspec",
      "spec/rack_jruby_profiling_spec.rb",
      "spec/spec.opts",
      "spec/spec_helper.rb"
